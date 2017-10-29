@@ -4,36 +4,43 @@ from File import File
 import shutil
 
 class FileManager:
-    def __init__(self,workspace,destination):
-        self.workspaceFileList=[]
+    def __init__(self, workspace, destination):
+        self.workspaceFileList = []
         self.destinationFileList = []
-        self.workspace = workspace + os.sep
+        self.workspace = []
+        self.addWorkspace(workspace)
         self.destination = destination + os.sep
-        for file in os.listdir(workspace):
-            if file.endswith(".txt"):
-                self.addFileToList(self.workspaceFileList, file, self.workspace)
-        for file in os.listdir(destination):
-            if file.endswith(".txt"):
-                self.addFileToList(self.destinationFileList, file, self.destination)
+        self.setFileLists()
 
-    def addWorkspace(self, worskpacePath):
-        self.workspace.append(worskpacePath)
+    def addWorkspace(self, workspacePath):
+        workspace = workspacePath + os.sep
+        self.workspace.append(workspace)
 
-    def addFileToList(self,list,fileToAdd, path):
-        file = File(fileToAdd, path, os.path.getmtime(path+fileToAdd))
-        list.append(file)
+    def addFileToList(self, fileList, fileToAdd, path):
+        f = File(fileToAdd, path, os.path.getmtime(path+fileToAdd))
+        fileList.append(f)
 
     def getFile(self, name, fileList):
-        for file in fileList:
-            if file.name == name:
-                return file
+        for f in fileList:
+            if f.name == name:
+                return f
 
     def syncFiles(self):
-        for file in self.workspaceFileList:
-            fileToSync = self.getFile(file.name, self.destinationFileList)
-            if file.getDate() > fileToSync.getDate():
-                shutil.copy(file.path, fileToSync.path)
+        for f in self.workspaceFileList:
+            fileToSync = self.getFile(f.name, self.destinationFileList)
+            if f.lastModified > fileToSync.lastModified:
+                shutil.copy(f.path, fileToSync.path)
 
     def getFileLastModifiedTimeStamp(self, filePath):
         time = os.path.getmtime(filePath)
         return datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S')
+
+    def setFileLists(self):
+        for workspace in self.workspace:
+            for f in os.listdir(workspace):
+                if f.endswith(".txt"):
+                    self.addFileToList(self.workspaceFileList, f, workspace)
+
+        for f in os.listdir(self.destination):
+            if f.endswith(".txt"):
+                self.addFileToList(self.destinationFileList, f, self.destination)
