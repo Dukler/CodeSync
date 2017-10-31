@@ -1,35 +1,27 @@
-from kivy.app import App
-from os.path import sep, expanduser, isdir, dirname
-from kivy.garden.filebrowser import FileBrowser
-from kivy.utils import platform
-
-class HelloWorldApp(App):
-    def build(self):
-        if platform == 'win':
-            user_path = dirname(expanduser('~')) + sep + 'Documents'
-        else:
-            user_path = expanduser('~') + sep + 'Documents'
-        browser = FileBrowser(select_string='Select',
-                              favorites=[(user_path, 'Documents')])
-        browser.bind(
-            on_success=self._fbrowser_success,
-            on_canceled=self._fbrowser_canceled)
-        return browser
-
-    def _fbrowser_canceled(self, instance):
-        print ('cancelled, Close self.')
-
-    def _fbrowser_success(self, instance):
-        print (instance.selection)
+import os
+from Tkinter import *
+import tkFileDialog
 
 
-def _fbrowser_success(self, instance):
-    print (instance.selection)
 
 def main():
+    def on_entry_click(event):
+        if e.get() == '':
+            currdir = os.getcwd()
+            tempdir = tkFileDialog.askdirectory(parent=root, initialdir=currdir, title='Please select a directory')
+            if len(tempdir) > 0:
+                e.insert(0, tempdir)
+
     #fileManager = FileManager("D:/test/1", "D:/test/2")
     #fileManager.syncFiles()
-    HelloWorldApp().run()
+    root = Tk()
+    root.minsize(width=800, height=600)
+
+    e = Entry(root)
+    # root.withdraw()  # use to hide tkinter window
+    e.pack()
+    e.bind("<Button-1>", on_entry_click)
+    root.mainloop()
 
 if __name__ == "__main__":
     main()
